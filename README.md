@@ -8,6 +8,7 @@ Repo for scripts that enable bulk minting from mintr without a full node (looped
 
 Mint NFTs using Mintr Bulk Mint Companion
 
+```
 options:
   -h, --help            show this help message and exit
   -nn STRING, --network_name STRING
@@ -24,4 +25,4 @@ options:
                         Path to metadata file (default: bulk_mint_metadata.csv)
   -t BOOLEAN, --nft_targets BOOLEAN
                         Whether to mint NFTs to targets (default: False)
-
+```
