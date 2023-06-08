@@ -18,8 +18,6 @@ logging.basicConfig(filename='mintr_bulk_companion.log', level=logging.INFO, for
 parser = argparse.ArgumentParser(description='Mint NFTs using Mintr Bulk Mint Companion')
 
 # Define arguments
-parser.add_argument('-nn', '--network_name', dest='network_name', type=str, default='testnet10', metavar='STRING',
-                    help='Name of the blockchain network (mainnet or testnet10) (default: %(default)s)')
 parser.add_argument('-i', '--wallet_id', dest='wallet_id', type=int, required=True, metavar='INTEGER', help='ID of the wallet to use (default: %(default)s)')
 parser.add_argument('-ra', '--royalty_address', dest='royalty_address', type=str, required=True, metavar='STRING', help='Address to send royalty payments (default: %(default)s)')
 parser.add_argument('-rp', '--royalty_percentage', dest='royalty_percentage', type=float, default=0, metavar='FLOAT', help='NFT royalty percentage fraction in basis points. Example: 175 would represent 1.75%% (default: %(default)s)')
@@ -38,7 +36,6 @@ print(f"\n\n#### STARTING Mintr Bulk Mint Companion\n")
 
 # Validate types
 try:
-    assert isinstance(args.network_name, str)
     assert isinstance(args.wallet_id, int)
     assert isinstance(args.royalty_address, str)
     assert isinstance(args.royalty_percentage, float)
@@ -60,25 +57,8 @@ if not path.exists(args.metadata_file):
 
 
 xch_fee = args.fee / 1000000000000
-net_prefix = 'xch' if args.network_name == 'mainnet' else 'txch'
-
-
-# Use arguments in rest of the script
-logger.info(f"Minting NFTs on {args.network_name} with wallet ID {args.wallet_id}")
-print(f"Minting NFTs on {args.network_name} with wallet ID {args.wallet_id}")
-logger.info(f"Royalties will be sent to {args.royalty_address} at a rate of {args.royalty_percentage}%")
-print(f"Royalties will be sent to {args.royalty_address} at a rate of {args.royalty_percentage}%")
-logger.info(f"The transaction fee will be {args.fee} mojo ({xch_fee} {net_prefix})  on {args.network_name}")
-print(f"The transaction fee will be {args.fee} mojo ({xch_fee} {net_prefix}) on {args.network_name}")
-logger.info(f"Using metadata file located at {args.metadata_file}")
-print(f"Using metadata file located at {args.metadata_file}")
-if args.nft_targets:
-    logger.info("Minting NFTs as targets")
-    print("Minting NFTs as targets")
 
 ########################################## Define Defaults ##########################################
-NETWORK_NAME = args.network_name  # to-do add validation of selected network
-
 nft_data = {"wallet_id": args.wallet_id,
             # 3 is default as this should be the NFT wallet if no additional wallets have been created
             "royalty_address": args.royalty_address,
@@ -132,7 +112,8 @@ def get_network():
         logger.info("The wallet RPC cannot be reached to verify network information, make sure Chia is running")
         print("The wallet RPC cannot be reached to verify network information, make sure Chia is running")
         network_name = 'unknown'
-    return network_name
+    net_prefix = 'xch' if network_name == 'mainnet' else 'txch'
+    return network_name, net_prefix
 
 
 def get_sync():
@@ -245,6 +226,20 @@ def read_metadata_csv(
     return metadata_list
 
 
+def start_info(network_name, net_prefix):
+    logger.info(f"Minting NFTs on {network_name} with wallet ID {args.wallet_id}")
+    print(f"Minting NFTs on {network_name} with wallet ID {args.wallet_id}")
+    logger.info(f"Royalties will be sent to {args.royalty_address} at a rate of {args.royalty_percentage}%")
+    print(f"Royalties will be sent to {args.royalty_address} at a rate of {args.royalty_percentage}%")
+    logger.info(f"The transaction fee will be {args.fee} mojo ({xch_fee} {net_prefix})  on {args.network_name}")
+    print(f"The transaction fee will be {args.fee} mojo ({xch_fee} {net_prefix}) on {network_name}")
+    logger.info(f"Using metadata file located at {args.metadata_file}")
+    print(f"Using metadata file located at {args.metadata_file}")
+    if args.nft_targets:
+        logger.info("Minting NFTs as targets")
+        print("Minting NFTs as targets")
+
+
 def mint(metadata_list):  # formats the json object based on the dict object and submits the RPC command
     i = 1
     logger.info('\n#### STEP 3 / 3 #### Minting NFTs \n')
@@ -296,10 +291,9 @@ def continue_mint():  # cancels minting to allow user to edit information
             s += 1
 
 
-def sync_verify():  # sync and network verification
+def sync_verify(network_name):  # sync and network verification
     try:
         if get_sync() == 'Synced':
-            network_name = get_network()
             logger.info('\n#### STEP 1 / 3 #### Confirm Network\n')
             print('\n#### STEP 1 / 3 #### Confirm Network\n')
             logger.info(f'#### {network_name} ####\nChia instance is on {network_name}\n')
@@ -321,7 +315,9 @@ def sync_verify():  # sync and network verification
 
 ########################################## Event Loop ##########################################
 def main():
-    sync_verify()
+    network_name, net_prefix = get_network()
+    sync_verify(network_name)
+    start_info(network_name, net_prefix)
     cancel_mint()
     metadata_list = read_metadata_csv(metadata_file, nft_targets)
     cancel_mint()
