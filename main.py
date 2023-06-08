@@ -231,7 +231,7 @@ def start_info(network_name, net_prefix):
     print(f"Minting NFTs on {network_name} with wallet ID {args.wallet_id}")
     logger.info(f"Royalties will be sent to {args.royalty_address} at a rate of {args.royalty_percentage}%")
     print(f"Royalties will be sent to {args.royalty_address} at a rate of {args.royalty_percentage}%")
-    logger.info(f"The transaction fee will be {args.fee} mojo ({xch_fee} {net_prefix})  on {args.network_name}")
+    logger.info(f"The transaction fee will be {args.fee} mojo ({xch_fee} {net_prefix})  on {network_name}")
     print(f"The transaction fee will be {args.fee} mojo ({xch_fee} {net_prefix}) on {network_name}")
     logger.info(f"Using metadata file located at {args.metadata_file}")
     print(f"Using metadata file located at {args.metadata_file}")
