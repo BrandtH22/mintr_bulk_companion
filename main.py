@@ -82,7 +82,7 @@ NETWORK_NAME = args.network_name  # to-do add validation of selected network
 nft_data = {"wallet_id": args.wallet_id,
             # 3 is default as this should be the NFT wallet if no additional wallets have been created
             "royalty_address": args.royalty_address,
-            "royalty_percentage": args.royalty_percentage / 100,
+            "royalty_percentage": args.royalty_percentage,
             "fee": args.fee}  # min recommended minting fee is default
 
 metadata_file = args.metadata_file
@@ -191,8 +191,8 @@ def read_metadata_csv(
         file_path: str,
         has_targets: Optional[bool] = False,
 ) -> list[dict[str, Any]]:
-    logger.info(f'Reading {file_path} file with targets set t0 {has_targets}')
-    print(f'Reading {file_path} file with targets set t0 {has_targets}')
+    logger.info(f'Reading {file_path} file with targets set to {has_targets}')
+    print(f'Reading {file_path} file with targets set to {has_targets}')
     with open(file_path, "r") as f:
         csv_reader = csv.reader(f)
         bulk_data = list(csv_reader)
@@ -239,8 +239,9 @@ def read_metadata_csv(
     t = len(metadata_list) - 1
     logger.info(f'\n{t} NFTs have been added to the minting queue\n')
     print(f'\n{t} NFTs have been added to the minting queue\n')
-    logger.info(f'The next step will start minting and monitoring minting of NFTs on {NETWORK_NAME}\nYou will not be able to cancel this process, please ensure all information is correct before continuing!')
-    print(f'The next step will start minting and monitoring minting of NFTs {NETWORK_NAME}\nYou will not be able to cancel this process, please ensure all information is correct before continuing!')
+    network_name = get_network()
+    logger.info(f'The next step will start minting and monitoring minting of NFTs on {network_name}\nYou will not be able to cancel this process, please ensure all information is correct before continuing!')
+    print(f'The next step will start minting and monitoring minting of NFTs {network_name}\nYou will not be able to cancel this process, please ensure all information is correct before continuing!')
     return metadata_list
 
 
