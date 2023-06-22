@@ -67,6 +67,8 @@ nft_data = {"wallet_id": args.wallet_id,
 
 metadata_file = args.metadata_file
 
+norm_royalty_percentage = args.royalty_percentage/100
+
 nft_targets = args.nft_targets
 
 ########################################## System Defaults ##########################################
@@ -229,8 +231,8 @@ def read_metadata_csv(
 def start_info(network_name, net_prefix):
     logger.info(f"Minting NFTs on {network_name} with wallet ID {args.wallet_id}")
     print(f"Minting NFTs on {network_name} with wallet ID {args.wallet_id}")
-    logger.info(f"Royalties will be sent to {args.royalty_address} at a rate of {args.royalty_percentage}%")
-    print(f"Royalties will be sent to {args.royalty_address} at a rate of {args.royalty_percentage}%")
+    logger.info(f"Royalties will be sent to {args.royalty_address} at a rate of {norm_royalty_percentage/100}%")
+    print(f"Royalties will be sent to {args.royalty_address} at a rate of {norm_royalty_percentage/100}%")
     logger.info(f"The transaction fee will be {args.fee} mojo ({xch_fee} {net_prefix})  on {network_name}")
     print(f"The transaction fee will be {args.fee} mojo ({xch_fee} {net_prefix}) on {network_name}")
     logger.info(f"Using metadata file located at {args.metadata_file}")
@@ -255,11 +257,12 @@ def mint(metadata_list):  # formats the json object based on the dict object and
                 print(f'NFT #{i} is currently minting, please be patient #### seconds elapsed  {asleep}')
                 sleep(10)
                 snooze += 1
+            i += 1
         else:
             logger.info('Chia instance is not synced \nPlease verify your chia instance is synced and reconfirm this mint')
             print('Chia instance is not synced \nPlease verify your chia instance is synced and reconfirm this mint')
-            continue_mint()
-        i += 1
+            if(continue_mint() == True): continue
+            else: exit()
 
 
 def cancel_mint():  # cancels minting to allow user to edit information
@@ -274,11 +277,11 @@ def cancel_mint():  # cancels minting to allow user to edit information
 
 
 def continue_mint():  # cancels minting to allow user to edit information
-    proceed = input('Would you like to proceed, cancel, or wait for 10 seconds? (y/w/n , default w):  ')
-    if proceed in ('y', 'Y'):
+    proceed = input('Would you like to proceed, cancel, or wait for 10 seconds? (p/w/c , default w):  ')
+    if proceed in ('p', 'P'):
         print('')
         return True
-    elif proceed in ('n', 'N'):
+    elif proceed in ('p', 'P'):
         logger.info('\n#### CANCELED ####\nMint Canceled by User\n#### CANCELED ####')
         print('\n#### CANCELED ####\nMint Canceled by User\n#### CANCELED ####')
         exit()
@@ -289,6 +292,7 @@ def continue_mint():  # cancels minting to allow user to edit information
             print(f'#### WAITING #### Mint Paused #### SECONDS ELAPSED {s} ')
             sleep(1)
             s += 1
+        return True
 
 
 def sync_verify(network_name):  # sync and network verification
