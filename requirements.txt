@@ -1,6 +1,6 @@
 ## Requirements
 
-chia-blockchain==1.7.1
+chia-blockchain==1.8.2
 certifi==2022.12.7
 charset-normalizer==3.0.1
 idna==3.4
